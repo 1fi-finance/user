@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
+import { cn, formatCurrency } from '@/lib/utils'
 
 interface ProductCardProps {
   name: string
@@ -33,21 +34,12 @@ export default function ProductCard({
     onWishlistToggle?.(newValue)
   }
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
-
   return (
     <div
-      className={`
-        relative bg-white rounded-xl p-3 shadow-sm
-        border border-gray-100 card-hover
-        ${className}
-      `}
+      className={cn(
+        'relative bg-white rounded-xl p-3 shadow-sm border border-gray-100 card-hover',
+        className
+      )}
       style={{ borderRadius: 'var(--radius-md)' }}
     >
       <div className="flex gap-3">
@@ -60,13 +52,16 @@ export default function ProductCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={image}
-              alt={name}
+              alt={`${name} product image`}
               className="w-full h-full object-cover rounded-lg"
+              loading="lazy"
             />
-          ) : image || (
-            <span className="text-3xl" role="img" aria-label="Product image">
-              📦
-            </span>
+          ) : (
+            image || (
+              <span className="text-3xl" role="img" aria-label="Product image placeholder">
+                📦
+              </span>
+            )
           )}
         </div>
 
@@ -75,17 +70,21 @@ export default function ProductCard({
           {/* Wishlist button */}
           <button
             onClick={handleWishlistClick}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center focus-ring touch-feedback"
+            className={cn(
+              'absolute top-3 right-3 w-11 h-11 rounded-full flex items-center justify-center focus-ring touch-feedback'
+            )}
             style={{
-              backgroundColor: isWishlisted ? '#fecaca33' : 'var(--color-bg-hover)',
+              backgroundColor: isWishlisted
+                ? 'color-mix(in srgb, var(--color-error) 20%, transparent)'
+                : 'var(--color-bg-hover)',
             }}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             aria-pressed={isWishlisted}
           >
             <svg
-              className="w-4 h-4"
-              fill={isWishlisted ? '#ef4444' : 'none'}
-              stroke={isWishlisted ? '#ef4444' : 'currentColor'}
+              className="w-5 h-5"
+              fill={isWishlisted ? 'var(--color-error)' : 'none'}
+              stroke={isWishlisted ? 'var(--color-error)' : 'currentColor'}
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
@@ -100,8 +99,8 @@ export default function ProductCard({
 
           {/* Product name */}
           <p
-            className="text-sm font-medium leading-tight pr-6 line-clamp-2"
-            style={{ color: 'var(--color-text-primary)' }}
+            className="text-sm font-medium leading-tight pr-10 line-clamp-2"
+            style={{ color: 'var(--color-text-primary)', textWrap: 'balance' }}
             title={name}
           >
             {name}
@@ -123,7 +122,7 @@ export default function ProductCard({
               className="text-xs line-through"
               style={{ color: 'var(--color-text-muted)' }}
             >
-              MPR {formatPrice(originalPrice)}
+              MPR {formatCurrency(originalPrice)}
             </span>
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
@@ -138,7 +137,7 @@ export default function ProductCard({
             className="text-base font-bold"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {formatPrice(finalPrice)}
+            {formatCurrency(finalPrice)}
           </p>
         </div>
       </div>
@@ -147,11 +146,14 @@ export default function ProductCard({
       {onAddToCart && (
         <button
           onClick={onAddToCart}
-          className="w-full mt-3 py-2 rounded-lg text-sm font-medium focus-ring touch-feedback flex items-center justify-center gap-2"
+          className={cn(
+            'w-full mt-3 h-11 rounded-lg text-sm font-medium focus-ring touch-feedback flex items-center justify-center gap-2'
+          )}
           style={{
             backgroundColor: 'var(--color-primary-light)',
             color: 'var(--color-primary)',
           }}
+          aria-label={`Add ${name} to cart`}
         >
           <svg
             className="w-4 h-4"

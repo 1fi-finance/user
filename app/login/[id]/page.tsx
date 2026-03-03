@@ -16,7 +16,7 @@ export default function SessionPage() {
       >
         {/* Status Bar */}
         <div className="flex w-full h-12 bg-[#f9fafb] items-end justify-center px-4 pb-2 sticky top-0 z-50">
-          <span className="text-sm font-medium text-gray-900">9:41</span>
+          <span className="text-sm font-medium text-gray-900"></span>
         </div>
 
         {/* Gradient Card - Borrow Against Mutual Funds */}

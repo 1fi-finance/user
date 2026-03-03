@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [step, setStep] = useState<'mobile' | 'otp' | 'details'>('mobile')
   const [mobileNumber, setMobileNumber] = useState('')
   const [email, setEmail] = useState('')
@@ -66,7 +66,6 @@ export default function LoginPage() {
       const data = await response.json()
       
       if (data.success) {
-        // OTP verified successfully - proceed to details or redirect
         setStep('details')
       } else {
         setError(data.message || 'Invalid OTP')
@@ -139,11 +138,11 @@ export default function LoginPage() {
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
-              <pattern id="grid-login" width="10" height="10" patternUnits="userSpaceOnUse">
+              <pattern id="grid-signup" width="10" height="10" patternUnits="userSpaceOnUse">
                 <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
               </pattern>
             </defs>
-            <rect width="100" height="100" fill="url(#grid-login)" />
+            <rect width="100" height="100" fill="url(#grid-signup)" />
           </svg>
         </div>
         
@@ -154,7 +153,7 @@ export default function LoginPage() {
         
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-8 xl:px-16 py-12 text-white">
-          {/* Logo */}
+          {/* Back Link */}
           <div className="mb-12">
             <Link href="/get-started" className="inline-flex items-center gap-2 text-white hover:text-white/80 transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,12 +165,12 @@ export default function LoginPage() {
           
           {/* Heading */}
           <h1 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-            Welcome<br/>Back
+            Create<br/>Your Account
           </h1>
           
           {/* Subtext */}
           <p className="text-lg xl:text-xl text-white/80 mb-12 max-w-md leading-relaxed">
-            Sign in to access your account and continue your investment journey.
+            Join thousands of investors and start building your wealth today.
           </p>
           
           {/* Trust Indicators */}
@@ -264,13 +263,13 @@ export default function LoginPage() {
               <div className="flex items-start gap-3">
                 <input
                   type="checkbox"
-                  id="terms"
+                  id="terms-signup"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
                   className="mt-1 w-5 h-5 rounded border-2 border-gray-300 text-[#712CDC] focus:ring-[#712CDC]"
                   disabled={isLoading}
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                <label htmlFor="terms-signup" className="text-sm text-gray-600 leading-relaxed">
                   I agree with 1Fi's T&C and Privacy Policy
                 </label>
               </div>
@@ -374,16 +373,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Not You & Continue */}
+              {/* Continue */}
               <div className="flex flex-col gap-4">
-                <button
-                  onClick={handleBack}
-                  className="text-sm text-gray-600 text-center"
-                  disabled={isLoading}
-                >
-                  Not you?
-                </button>
-
                 <button
                   onClick={handleOtpSubmit}
                   disabled={otp.length !== 6 || isLoading}
@@ -403,7 +394,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Details Step */}
+          {/* Details Step (Email, PAN, DOB) */}
           {step === 'details' && (
             <div className="flex flex-col gap-5">
               {/* Back Button */}
@@ -421,8 +412,11 @@ export default function LoginPage() {
               {/* Header */}
               <div className="flex flex-col gap-1">
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Please enter your details
+                  Complete Your Profile
                 </h1>
+                <p className="text-sm text-gray-600">
+                  Please provide your details to complete registration
+                </p>
               </div>
 
               {/* Form Fields */}
@@ -486,7 +480,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Continue Button */}
+              {/* Create Account Button */}
               <button
                 onClick={handleDetailsSubmit}
                 disabled={!email || !pan || !fullName || !dob || isLoading}
@@ -499,7 +493,7 @@ export default function LoginPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : (
-                  'Continue'
+                  'Create Account'
                 )}
               </button>
             </div>
