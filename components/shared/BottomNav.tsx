@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
+import { ReactNode } from "react";
 
 export interface NavItem {
-  id: string
-  label: string
-  icon: ReactNode | ((isActive: boolean) => ReactNode)
-  badge?: number | string
-  disabled?: boolean
-  href?: string
+  id: string;
+  label: string;
+  icon: ReactNode | ((isActive: boolean) => ReactNode);
+  badge?: number | string;
+  disabled?: boolean;
+  href?: string;
 }
 
 interface BottomNavProps {
-  items: NavItem[]
-  activeTab: string
-  onTabChange: (tabId: string) => void
-  className?: string
-  maxWidth?: string
+  items: NavItem[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+  className?: string;
+  maxWidth?: string;
 }
 
 export default function BottomNav({
   items,
   activeTab,
   onTabChange,
-  className = '',
-  maxWidth = '393px',
+  className = "",
+  maxWidth = "393px",
 }: BottomNavProps) {
   return (
     <nav
@@ -35,21 +35,19 @@ export default function BottomNav({
       `}
       style={{
         maxWidth,
-        margin: '0 auto',
-        borderColor: 'var(--color-border)',
+        margin: "0 auto",
+        borderColor: "var(--color-border)",
       }}
       role="navigation"
       aria-label="Main navigation"
     >
       {items.map((item) => {
-        const isActive = activeTab === item.id
-        const isDisabled = item.disabled ?? false
+        const isActive = activeTab === item.id;
+        const isDisabled = item.disabled ?? false;
 
         const renderItemIcon = () => {
           const iconContent =
-            typeof item.icon === 'function'
-              ? item.icon(isActive)
-              : item.icon
+            typeof item.icon === "function" ? item.icon(isActive) : item.icon;
 
           return (
             <div className="relative">
@@ -59,27 +57,25 @@ export default function BottomNav({
                 <span
                   className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
                   style={{
-                    backgroundColor: 'var(--color-error)',
+                    backgroundColor: "var(--color-error)",
                   }}
                   aria-label={`${item.badge} notifications`}
                 >
-                  {typeof item.badge === 'number' && item.badge > 9
-                    ? '9+'
+                  {typeof item.badge === "number" && item.badge > 9
+                    ? "9+"
                     : item.badge}
                 </span>
               )}
             </div>
-          )
-        }
+          );
+        };
 
         const buttonContent = (
           <>
             {renderItemIcon()}
             <span
               className={`text-xs font-medium transition-colors ${
-                isActive
-                  ? 'text-[#712cdc]'
-                  : 'text-gray-400'
+                isActive ? "text-[#712cdc]" : "text-gray-400"
               }`}
             >
               {item.label}
@@ -89,14 +85,14 @@ export default function BottomNav({
               <span
                 className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
                 style={{
-                  backgroundColor: 'var(--color-primary)',
-                  transform: 'translateX(-50%) translateY(-50%)',
+                  backgroundColor: "var(--color-primary)",
+                  transform: "translateX(-50%) translateY(-50%)",
                 }}
                 aria-hidden="true"
               />
             )}
           </>
-        )
+        );
 
         const sharedButtonProps = {
           key: item.id,
@@ -106,21 +102,21 @@ export default function BottomNav({
             relative flex flex-col items-center gap-1
             min-w-[64px] min-h-[44px] justify-center py-2 px-3
             focus-ring rounded-lg touch-feedback
-            ${isActive ? 'text-[#712cdc]' : 'text-gray-400'}
-            ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            ${isActive ? "text-[#712cdc]" : "text-gray-400"}
+            ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           `,
-          'aria-current': (isActive ? 'page' : undefined) as 'page' | undefined,
-          'aria-label': item.label,
-          'aria-disabled': isDisabled,
-        }
+          "aria-current": (isActive ? "page" : undefined) as "page" | undefined,
+          "aria-label": item.label,
+          "aria-disabled": isDisabled,
+        };
 
         return item.href ? (
           <a
             key={sharedButtonProps.key}
             href={item.href}
             className={sharedButtonProps.className}
-            aria-current={sharedButtonProps['aria-current']}
-            aria-label={sharedButtonProps['aria-label']}
+            aria-current={sharedButtonProps["aria-current"]}
+            aria-label={sharedButtonProps["aria-label"]}
             onClick={sharedButtonProps.onClick as any}
             role="link"
           >
@@ -131,29 +127,29 @@ export default function BottomNav({
             key={sharedButtonProps.key}
             type="button"
             className={sharedButtonProps.className}
-            aria-current={sharedButtonProps['aria-current']}
-            aria-label={sharedButtonProps['aria-label']}
-            aria-disabled={sharedButtonProps['aria-disabled']}
+            aria-current={sharedButtonProps["aria-current"]}
+            aria-label={sharedButtonProps["aria-label"]}
+            aria-disabled={sharedButtonProps["aria-disabled"]}
             onClick={sharedButtonProps.onClick}
             disabled={isDisabled}
           >
             {buttonContent}
           </button>
-        )
+        );
       })}
     </nav>
-  )
+  );
 }
 
 // Default navigation items for common use cases
 export const defaultNavItems: NavItem[] = [
   {
-    id: 'home',
-    label: 'Home',
+    id: "home",
+    label: "Home",
     icon: (isActive) => (
       <svg
         className="w-6 h-6"
-        fill={isActive ? 'currentColor' : 'none'}
+        fill={isActive ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -168,12 +164,12 @@ export const defaultNavItems: NavItem[] = [
     ),
   },
   {
-    id: 'offers',
-    label: 'Offers',
+    id: "offers",
+    label: "Offers",
     icon: (isActive) => (
       <svg
         className="w-6 h-6"
-        fill={isActive ? 'currentColor' : 'none'}
+        fill={isActive ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -188,12 +184,12 @@ export const defaultNavItems: NavItem[] = [
     ),
   },
   {
-    id: 'profile',
-    label: 'Profile',
+    id: "profile",
+    label: "Profile",
     icon: (isActive) => (
       <svg
         className="w-6 h-6"
-        fill={isActive ? 'currentColor' : 'none'}
+        fill={isActive ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -208,12 +204,12 @@ export const defaultNavItems: NavItem[] = [
     ),
   },
   {
-    id: 'settings',
-    label: 'Settings',
+    id: "settings",
+    label: "Settings",
     icon: (isActive) => (
       <svg
         className="w-6 h-6"
-        fill={isActive ? 'currentColor' : 'none'}
+        fill={isActive ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -233,13 +229,13 @@ export const defaultNavItems: NavItem[] = [
       </svg>
     ),
   },
-]
+];
 
 // Convenience component with default items
-interface BottomNavDefaultProps extends Omit<BottomNavProps, 'items'> {
-  items?: NavItem[]
+interface BottomNavDefaultProps extends Omit<BottomNavProps, "items"> {
+  items?: NavItem[];
 }
 
 export function BottomNavDefault(props: BottomNavDefaultProps) {
-  return <BottomNav items={props.items ?? defaultNavItems} {...props} />
+  return <BottomNav items={props.items ?? defaultNavItems} {...props} />;
 }

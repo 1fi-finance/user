@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import { ReactNode, useState } from 'react'
-import { cn, formatCurrency } from '@/lib/utils'
+import { ReactNode, useState } from "react";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface ProductCardProps {
-  name: string
-  image?: string | ReactNode
-  originalPrice: number
-  discount: number
-  finalPrice: number
-  location?: string
-  onWishlistToggle?: (isWishlisted: boolean) => void
-  onAddToCart?: () => void
-  className?: string
+  name: string;
+  image?: string | ReactNode;
+  originalPrice: number;
+  discount: number;
+  finalPrice: number;
+  location?: string;
+  onWishlistToggle?: (isWishlisted: boolean) => void;
+  onAddToCart?: () => void;
+  className?: string;
 }
 
 export default function ProductCard({
@@ -24,31 +24,31 @@ export default function ProductCard({
   location,
   onWishlistToggle,
   onAddToCart,
-  className = '',
+  className = "",
 }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const handleWishlistClick = () => {
-    const newValue = !isWishlisted
-    setIsWishlisted(newValue)
-    onWishlistToggle?.(newValue)
-  }
+    const newValue = !isWishlisted;
+    setIsWishlisted(newValue);
+    onWishlistToggle?.(newValue);
+  };
 
   return (
     <div
       className={cn(
-        'relative bg-white rounded-xl p-3 shadow-sm border border-gray-100 card-hover',
-        className
+        "relative bg-white rounded-xl p-3 shadow-sm border border-gray-100 card-hover",
+        className,
       )}
-      style={{ borderRadius: 'var(--radius-md)' }}
+      style={{ borderRadius: "var(--radius-md)" }}
     >
       <div className="flex gap-3">
         {/* Product image */}
         <div
           className="w-20 h-20 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-bg-hover)' }}
+          style={{ backgroundColor: "var(--color-bg-hover)" }}
         >
-          {typeof image === 'string' ? (
+          {typeof image === "string" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={image}
@@ -58,7 +58,11 @@ export default function ProductCard({
             />
           ) : (
             image || (
-              <span className="text-3xl" role="img" aria-label="Product image placeholder">
+              <span
+                className="text-3xl"
+                role="img"
+                aria-label="Product image placeholder"
+              >
                 📦
               </span>
             )
@@ -71,20 +75,22 @@ export default function ProductCard({
           <button
             onClick={handleWishlistClick}
             className={cn(
-              'absolute top-3 right-3 w-11 h-11 rounded-full flex items-center justify-center focus-ring touch-feedback'
+              "absolute top-3 right-3 w-11 h-11 rounded-full flex items-center justify-center focus-ring touch-feedback",
             )}
             style={{
               backgroundColor: isWishlisted
-                ? 'color-mix(in srgb, var(--color-error) 20%, transparent)'
-                : 'var(--color-bg-hover)',
+                ? "color-mix(in srgb, var(--color-error) 20%, transparent)"
+                : "var(--color-bg-hover)",
             }}
-            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={
+              isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+            }
             aria-pressed={isWishlisted}
           >
             <svg
               className="w-5 h-5"
-              fill={isWishlisted ? 'var(--color-error)' : 'none'}
-              stroke={isWishlisted ? 'var(--color-error)' : 'currentColor'}
+              fill={isWishlisted ? "var(--color-error)" : "none"}
+              stroke={isWishlisted ? "var(--color-error)" : "currentColor"}
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
@@ -100,7 +106,7 @@ export default function ProductCard({
           {/* Product name */}
           <p
             className="text-sm font-medium leading-tight pr-10 line-clamp-2"
-            style={{ color: 'var(--color-text-primary)', textWrap: 'balance' }}
+            style={{ color: "var(--color-text-primary)", textWrap: "balance" }}
             title={name}
           >
             {name}
@@ -110,7 +116,7 @@ export default function ProductCard({
           {location && (
             <p
               className="text-xs mt-1"
-              style={{ color: 'var(--color-text-muted)' }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               {location}
             </p>
@@ -120,13 +126,13 @@ export default function ProductCard({
           <div className="flex items-center gap-2 mt-2">
             <span
               className="text-xs line-through"
-              style={{ color: 'var(--color-text-muted)' }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               MPR {formatCurrency(originalPrice)}
             </span>
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
-              style={{ backgroundColor: 'var(--color-success)' }}
+              style={{ backgroundColor: "var(--color-success)" }}
             >
               -{discount}%
             </span>
@@ -135,7 +141,7 @@ export default function ProductCard({
           {/* Final price */}
           <p
             className="text-base font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: "var(--color-text-primary)" }}
           >
             {formatCurrency(finalPrice)}
           </p>
@@ -147,11 +153,11 @@ export default function ProductCard({
         <button
           onClick={onAddToCart}
           className={cn(
-            'w-full mt-3 h-11 rounded-lg text-sm font-medium focus-ring touch-feedback flex items-center justify-center gap-2'
+            "w-full mt-3 h-11 rounded-lg text-sm font-medium focus-ring touch-feedback flex items-center justify-center gap-2",
           )}
           style={{
-            backgroundColor: 'var(--color-primary-light)',
-            color: 'var(--color-primary)',
+            backgroundColor: "var(--color-primary-light)",
+            color: "var(--color-primary)",
           }}
           aria-label={`Add ${name} to cart`}
         >
@@ -173,5 +179,5 @@ export default function ProductCard({
         </button>
       )}
     </div>
-  )
+  );
 }

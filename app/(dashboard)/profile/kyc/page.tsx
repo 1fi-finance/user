@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   User,
   Mail,
@@ -11,134 +11,154 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  ArrowLeft
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import Link from 'next/link'
+  ArrowLeft,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 interface FormData {
-  email: string
-  panNumber: string
-  fullName: string
-  dateOfBirth: string
+  email: string;
+  panNumber: string;
+  fullName: string;
+  dateOfBirth: string;
 }
 
 interface FormErrors {
-  email?: string
-  panNumber?: string
-  fullName?: string
-  dateOfBirth?: string
+  email?: string;
+  panNumber?: string;
+  fullName?: string;
+  dateOfBirth?: string;
 }
 
 // PAN card format validation: 5 letters, 4 numbers, 1 letter (AAAAA1234A)
-const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
 // Email validation
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function KYCPage() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [submitMessage, setSubmitMessage] = useState('')
-  
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    panNumber: '',
-    fullName: '',
-    dateOfBirth: ''
-  })
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
 
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    panNumber: "",
+    fullName: "",
+    dateOfBirth: "",
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const validateField = (name: string, value: string): string | undefined => {
     switch (name) {
-      case 'email':
-        if (!value) return 'Email is required'
-        if (!EMAIL_REGEX.test(value)) return 'Invalid email format'
-        break
-      case 'panNumber':
-        if (!value) return 'PAN number is required'
-        if (!PAN_REGEX.test(value.toUpperCase())) return 'Invalid PAN format (e.g., AAAAA1234A)'
-        break
-      case 'fullName':
-        if (!value) return 'Full name is required'
-        if (value.trim().length < 2) return 'Full name must be at least 2 characters'
-        break
-      case 'dateOfBirth':
-        if (!value) return 'Date of birth is required'
-        const dob = new Date(value)
-        if (isNaN(dob.getTime())) return 'Invalid date format'
-        const today = new Date()
-        const age = today.getFullYear() - dob.getFullYear()
-        const monthDiff = today.getMonth() - dob.getMonth()
-        const dayDiff = today.getDate() - dob.getDate()
-        let calculatedAge = age
+      case "email":
+        if (!value) return "Email is required";
+        if (!EMAIL_REGEX.test(value)) return "Invalid email format";
+        break;
+      case "panNumber":
+        if (!value) return "PAN number is required";
+        if (!PAN_REGEX.test(value.toUpperCase()))
+          return "Invalid PAN format (e.g., AAAAA1234A)";
+        break;
+      case "fullName":
+        if (!value) return "Full name is required";
+        if (value.trim().length < 2)
+          return "Full name must be at least 2 characters";
+        break;
+      case "dateOfBirth":
+        if (!value) return "Date of birth is required";
+        const dob = new Date(value);
+        if (isNaN(dob.getTime())) return "Invalid date format";
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        const dayDiff = today.getDate() - dob.getDate();
+        let calculatedAge = age;
         if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-          calculatedAge--
+          calculatedAge--;
         }
-        if (calculatedAge < 18) return 'You must be at least 18 years old'
-        break
+        if (calculatedAge < 18) return "You must be at least 18 years old";
+        break;
     }
-    return undefined
-  }
+    return undefined;
+  };
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Validate on change if field has been touched
     if (touched[field]) {
-      const error = validateField(field, value)
-      setErrors(prev => ({ ...prev, [field]: error }))
+      const error = validateField(field, value);
+      setErrors((prev) => ({ ...prev, [field]: error }));
     }
-  }
+  };
 
   const handleBlur = (field: keyof FormData) => {
-    setTouched(prev => ({ ...prev, [field]: true }))
-    const error = validateField(field, formData[field])
-    setErrors(prev => ({ ...prev, [field]: error }))
-  }
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const error = validateField(field, formData[field]);
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
-    let isValid = true
+    const newErrors: FormErrors = {};
+    let isValid = true;
 
-    const fields: (keyof FormData)[] = ['email', 'panNumber', 'fullName', 'dateOfBirth']
-    
-    fields.forEach(field => {
-      const error = validateField(field, formData[field])
+    const fields: (keyof FormData)[] = [
+      "email",
+      "panNumber",
+      "fullName",
+      "dateOfBirth",
+    ];
+
+    fields.forEach((field) => {
+      const error = validateField(field, formData[field]);
       if (error) {
-        newErrors[field] = error
-        isValid = false
+        newErrors[field] = error;
+        isValid = false;
       }
-    })
+    });
 
-    setErrors(newErrors)
-    setTouched({ email: true, panNumber: true, fullName: true, dateOfBirth: true })
-    
-    return isValid
-  }
+    setErrors(newErrors);
+    setTouched({
+      email: true,
+      panNumber: true,
+      fullName: true,
+      dateOfBirth: true,
+    });
+
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitStatus('idle')
-    setSubmitMessage('')
+    e.preventDefault();
+    setSubmitStatus("idle");
+    setSubmitMessage("");
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/kyc/submit', {
-        method: 'POST',
+      const response = await fetch("/api/kyc/submit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: formData.email,
@@ -146,31 +166,35 @@ export default function KYCPage() {
           fullName: formData.fullName,
           dateOfBirth: formData.dateOfBirth,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        setSubmitStatus('success')
-        setSubmitMessage(data.message || 'KYC submitted successfully!')
+        setSubmitStatus("success");
+        setSubmitMessage(data.message || "KYC submitted successfully!");
       } else {
-        setSubmitStatus('error')
-        setSubmitMessage(data.message || 'Failed to submit KYC')
+        setSubmitStatus("error");
+        setSubmitMessage(data.message || "Failed to submit KYC");
       }
     } catch (error) {
-      console.error('KYC Submit Error:', error)
-      setSubmitStatus('error')
-      setSubmitMessage('An unexpected error occurred. Please try again.')
+      console.error("KYC Submit Error:", error);
+      setSubmitStatus("error");
+      setSubmitMessage("An unexpected error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Calculate max date (must be 18 years ago)
-  const today = new Date()
-  const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate())
+  const today = new Date();
+  const maxDate = new Date(
+    today.getFullYear() - 18,
+    today.getMonth(),
+    today.getDate(),
+  )
     .toISOString()
-    .split('T')[0]
+    .split("T")[0];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -182,8 +206,12 @@ export default function KYCPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">KYC Verification</h1>
-          <p className="text-gray-500 mt-1">Complete your KYC to access all features</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            KYC Verification
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Complete your KYC to access all features
+          </p>
         </div>
       </div>
 
@@ -212,11 +240,13 @@ export default function KYCPage() {
                   type="email"
                   placeholder="Enter your email address"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  onBlur={() => handleBlur('email')}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  onBlur={() => handleBlur("email")}
                   className={cn(
                     "pl-10 border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]",
-                    errors.email && touched.email && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    errors.email &&
+                      touched.email &&
+                      "border-red-500 focus:border-red-500 focus:ring-red-500",
                   )}
                 />
               </div>
@@ -240,12 +270,16 @@ export default function KYCPage() {
                   type="text"
                   placeholder="Enter PAN number (e.g., AAAAA1234A)"
                   value={formData.panNumber}
-                  onChange={(e) => handleChange('panNumber', e.target.value.toUpperCase())}
-                  onBlur={() => handleBlur('panNumber')}
+                  onChange={(e) =>
+                    handleChange("panNumber", e.target.value.toUpperCase())
+                  }
+                  onBlur={() => handleBlur("panNumber")}
                   maxLength={10}
                   className={cn(
                     "pl-10 border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC] uppercase",
-                    errors.panNumber && touched.panNumber && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    errors.panNumber &&
+                      touched.panNumber &&
+                      "border-red-500 focus:border-red-500 focus:ring-red-500",
                   )}
                 />
               </div>
@@ -272,11 +306,13 @@ export default function KYCPage() {
                   type="text"
                   placeholder="Enter full name as per PAN card"
                   value={formData.fullName}
-                  onChange={(e) => handleChange('fullName', e.target.value)}
-                  onBlur={() => handleBlur('fullName')}
+                  onChange={(e) => handleChange("fullName", e.target.value)}
+                  onBlur={() => handleBlur("fullName")}
                   className={cn(
                     "pl-10 border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]",
-                    errors.fullName && touched.fullName && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    errors.fullName &&
+                      touched.fullName &&
+                      "border-red-500 focus:border-red-500 focus:ring-red-500",
                   )}
                 />
               </div>
@@ -291,7 +327,8 @@ export default function KYCPage() {
             {/* Date of Birth Field */}
             <div className="space-y-2">
               <Label htmlFor="dateOfBirth" className="text-gray-700">
-                Date of Birth (as per PAN) <span className="text-red-500">*</span>
+                Date of Birth (as per PAN){" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -299,12 +336,14 @@ export default function KYCPage() {
                   id="dateOfBirth"
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => handleChange('dateOfBirth', e.target.value)}
-                  onBlur={() => handleBlur('dateOfBirth')}
+                  onChange={(e) => handleChange("dateOfBirth", e.target.value)}
+                  onBlur={() => handleBlur("dateOfBirth")}
                   max={maxDate}
                   className={cn(
                     "pl-10 border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]",
-                    errors.dateOfBirth && touched.dateOfBirth && "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    errors.dateOfBirth &&
+                      touched.dateOfBirth &&
+                      "border-red-500 focus:border-red-500 focus:ring-red-500",
                   )}
                 />
               </div>
@@ -317,19 +356,23 @@ export default function KYCPage() {
             </div>
 
             {/* Submit Status */}
-            {submitStatus !== 'idle' && (
-              <div className={cn(
-                "p-4 rounded-lg flex items-start gap-3",
-                submitStatus === 'success' ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-              )}>
-                {submitStatus === 'success' ? (
+            {submitStatus !== "idle" && (
+              <div
+                className={cn(
+                  "p-4 rounded-lg flex items-start gap-3",
+                  submitStatus === "success"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-red-50 text-red-700",
+                )}
+              >
+                {submitStatus === "success" ? (
                   <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 ) : (
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 )}
                 <div>
                   <p className="font-medium">
-                    {submitStatus === 'success' ? 'Success!' : 'Error'}
+                    {submitStatus === "success" ? "Success!" : "Error"}
                   </p>
                   <p className="text-sm mt-1">{submitMessage}</p>
                 </div>
@@ -348,7 +391,7 @@ export default function KYCPage() {
                   Submitting...
                 </>
               ) : (
-                'Submit KYC'
+                "Submit KYC"
               )}
             </Button>
           </form>
@@ -363,15 +406,18 @@ export default function KYCPage() {
               <CreditCard className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900 text-sm">Why is KYC required?</h3>
+              <h3 className="font-medium text-gray-900 text-sm">
+                Why is KYC required?
+              </h3>
               <p className="text-sm text-gray-600 mt-1">
-                KYC (Know Your Customer) is required by regulatory guidelines to verify your identity. 
-                This helps us ensure secure transactions and comply with legal requirements.
+                KYC (Know Your Customer) is required by regulatory guidelines to
+                verify your identity. This helps us ensure secure transactions
+                and comply with legal requirements.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

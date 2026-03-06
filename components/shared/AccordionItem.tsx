@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { ReactNode, useRef, useEffect, useState, useId } from 'react'
-import { cn, generateId } from '@/lib/utils'
+import { ReactNode, useRef, useEffect, useState, useId } from "react";
+import { cn, generateId } from "@/lib/utils";
 
 interface AccordionItemProps {
   /** Unique identifier for the accordion item (optional, auto-generated if not provided) */
-  id?: string
+  id?: string;
   /** Title displayed in the accordion header */
-  title?: string
+  title?: string;
   /** Content to display when accordion is open */
-  children: ReactNode
+  children: ReactNode;
   /** Optional icon to display before the title */
-  icon?: ReactNode
+  icon?: ReactNode;
   /** Controlled open state */
-  isOpen?: boolean
+  isOpen?: boolean;
   /** Callback when accordion is toggled */
-  onToggle?: () => void
+  onToggle?: () => void;
   /** Whether the accordion should be open by default */
-  defaultOpen?: boolean
+  defaultOpen?: boolean;
   /** Additional classes for the container */
-  className?: string
+  className?: string;
   /** Additional classes for the content area */
-  contentClassName?: string
+  contentClassName?: string;
 }
 
 export default function AccordionItem({
@@ -32,54 +32,56 @@ export default function AccordionItem({
   isOpen: isOpenProp,
   onToggle: onToggleProp,
   defaultOpen = false,
-  className = '',
-  contentClassName = '',
+  className = "",
+  contentClassName = "",
 }: AccordionItemProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const [height, setHeight] = useState<number | undefined>(defaultOpen ? undefined : 0)
-  const generatedId = useId()
-  
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const [height, setHeight] = useState<number | undefined>(
+    defaultOpen ? undefined : 0,
+  );
+  const generatedId = useId();
+
   // Handle both controlled and uncontrolled modes
-  const isControlled = isOpenProp !== undefined
-  const isOpen = isControlled ? isOpenProp : internalOpen
-  
+  const isControlled = isOpenProp !== undefined;
+  const isOpen = isControlled ? isOpenProp : internalOpen;
+
   const handleToggle = () => {
     if (isControlled) {
-      onToggleProp?.()
+      onToggleProp?.();
     } else {
-      setInternalOpen(!internalOpen)
+      setInternalOpen(!internalOpen);
     }
-  }
-  
+  };
+
   // Generate stable IDs for accessibility
-  const id = idProp || generateId('accordion')
-  const headerId = `accordion-header-${id}`
-  const panelId = `accordion-panel-${id}`
+  const id = idProp || generateId("accordion");
+  const headerId = `accordion-header-${id}`;
+  const panelId = `accordion-panel-${id}`;
 
   // Calculate height when isOpen changes - only for smooth animation
   useEffect(() => {
     if (contentRef.current) {
       if (isOpen) {
-        setHeight(contentRef.current.scrollHeight)
+        setHeight(contentRef.current.scrollHeight);
       } else {
-        setHeight(0)
+        setHeight(0);
       }
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Handle transition end to set height to auto for nested content
   const handleTransitionEnd = () => {
     if (isOpen && contentRef.current) {
-      setHeight(undefined)
+      setHeight(undefined);
     }
-  }
+  };
 
   return (
-    <div 
+    <div
       className={cn(
-        'bg-[var(--color-bg-card)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)]',
-        className
+        "bg-[var(--color-bg-card)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)]",
+        className,
       )}
     >
       {/* Accordion header */}
@@ -109,9 +111,9 @@ export default function AccordionItem({
         {/* Chevron icon */}
         <svg
           className={cn(
-            'w-5 h-5 flex-shrink-0 text-[var(--color-text-muted)]',
-            'transition-transform duration-300 motion-reduce:transition-none',
-            isOpen && 'rotate-180'
+            "w-5 h-5 flex-shrink-0 text-[var(--color-text-muted)]",
+            "transition-transform duration-300 motion-reduce:transition-none",
+            isOpen && "rotate-180",
           )}
           fill="none"
           stroke="currentColor"
@@ -135,17 +137,17 @@ export default function AccordionItem({
         className="overflow-hidden motion-reduce:transition-none"
         style={{
           height: height,
-          transition: 'height var(--transition-slow)',
+          transition: "height var(--transition-slow)",
         }}
         onTransitionEnd={handleTransitionEnd}
         hidden={!isOpen && height === 0}
       >
-        <div ref={contentRef} className={cn('px-4 pb-4', contentClassName)}>
+        <div ref={contentRef} className={cn("px-4 pb-4", contentClassName)}>
           {children}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ============================================
@@ -153,15 +155,15 @@ export default function AccordionItem({
 // ============================================
 
 export function useAccordion(initialOpen?: string) {
-  const [openItem, setOpenItem] = useState<string | null>(initialOpen || null)
+  const [openItem, setOpenItem] = useState<string | null>(initialOpen || null);
 
   const toggle = (id: string) => {
-    setOpenItem(prev => (prev === id ? null : id))
-  }
+    setOpenItem((prev) => (prev === id ? null : id));
+  };
 
-  const isOpen = (id: string) => openItem === id
+  const isOpen = (id: string) => openItem === id;
 
-  return { openItem, toggle, isOpen }
+  return { openItem, toggle, isOpen };
 }
 
 // ============================================
@@ -169,42 +171,52 @@ export function useAccordion(initialOpen?: string) {
 // ============================================
 
 interface AccordionGroupProps {
-  children: ReactNode | ((props: { toggle: (id: string) => void; isOpen: (id: string) => boolean }) => ReactNode)
+  children:
+    | ReactNode
+    | ((props: {
+        toggle: (id: string) => void;
+        isOpen: (id: string) => boolean;
+      }) => ReactNode);
   /** Allow multiple accordion items to be open simultaneously */
-  allowMultiple?: boolean
+  allowMultiple?: boolean;
   /** Additional classes for the container */
-  className?: string
+  className?: string;
 }
 
 export function AccordionGroup({
   children,
   allowMultiple = false,
-  className = '',
+  className = "",
 }: AccordionGroupProps) {
-  const [openItems, setOpenItems] = useState<Set<string>>(new Set())
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   const toggle = (id: string) => {
-    setOpenItems(prev => {
-      const newSet = new Set(prev)
+    setOpenItems((prev) => {
+      const newSet = new Set(prev);
       if (newSet.has(id)) {
-        newSet.delete(id)
+        newSet.delete(id);
       } else {
         if (!allowMultiple) {
-          newSet.clear()
+          newSet.clear();
         }
-        newSet.add(id)
+        newSet.add(id);
       }
-      return newSet
-    })
-  }
+      return newSet;
+    });
+  };
 
-  const isOpen = (id: string) => openItems.has(id)
+  const isOpen = (id: string) => openItems.has(id);
 
   return (
-    <div className={cn('space-y-3', className)}>
-      {typeof children === 'function'
-        ? (children as (props: { toggle: (id: string) => void; isOpen: (id: string) => boolean }) => ReactNode)({ toggle, isOpen })
+    <div className={cn("space-y-3", className)}>
+      {typeof children === "function"
+        ? (
+            children as (props: {
+              toggle: (id: string) => void;
+              isOpen: (id: string) => boolean;
+            }) => ReactNode
+          )({ toggle, isOpen })
         : children}
     </div>
-  )
+  );
 }

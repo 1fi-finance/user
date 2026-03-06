@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   HelpCircle,
   Phone,
@@ -15,83 +15,101 @@ import {
   FileText,
   CreditCard,
   User,
-  Shield
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+  Shield,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface FAQ {
-  question: string
-  answer: string
-  category: string
+  question: string;
+  answer: string;
+  category: string;
 }
 
 export default function SupportPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [openFaq, setOpenFaq] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   const faqs: FAQ[] = [
     {
-      question: 'How do I complete my KYC verification?',
-      answer: 'To complete your KYC verification, go to Profile > Profile Details and fill in your personal information. You will need to submit your Aadhaar card, PAN card, and a selfie. Our team will verify your documents within 24-48 hours.',
-      category: 'KYC'
+      question: "How do I complete my KYC verification?",
+      answer:
+        "To complete your KYC verification, go to Profile > Profile Details and fill in your personal information. You will need to submit your Aadhaar card, PAN card, and a selfie. Our team will verify your documents within 24-48 hours.",
+      category: "KYC",
     },
     {
-      question: 'What documents are required for KYC?',
-      answer: 'You need to submit: 1) Aadhaar Card (mandatory), 2) PAN Card, 3) A selfie with your face clearly visible. Make sure the documents are clear and not expired.',
-      category: 'KYC'
+      question: "What documents are required for KYC?",
+      answer:
+        "You need to submit: 1) Aadhaar Card (mandatory), 2) PAN Card, 3) A selfie with your face clearly visible. Make sure the documents are clear and not expired.",
+      category: "KYC",
     },
     {
-      question: 'How long does loan disbursement take?',
-      answer: 'Once your loan is approved, the amount is typically disbursed within 24-48 hours to your registered bank account. The exact time may vary depending on your bank.',
-      category: 'Loan'
+      question: "How long does loan disbursement take?",
+      answer:
+        "Once your loan is approved, the amount is typically disbursed within 24-48 hours to your registered bank account. The exact time may vary depending on your bank.",
+      category: "Loan",
     },
     {
-      question: 'What is the interest rate on loans?',
-      answer: 'Our interest rates range from 12% to 24% per annum depending on your credit score, loan amount, and tenure. You can view the exact rate during the loan application process.',
-      category: 'Loan'
+      question: "What is the interest rate on loans?",
+      answer:
+        "Our interest rates range from 12% to 24% per annum depending on your credit score, loan amount, and tenure. You can view the exact rate during the loan application process.",
+      category: "Loan",
     },
     {
-      question: 'How can I repay my loan?',
-      answer: 'You can repay your loan through: 1) Auto-debit from your bank account, 2) UPI payment, 3) Net banking transfer. Go to Account > Repay Loan to make a payment.',
-      category: 'Loan'
+      question: "How can I repay my loan?",
+      answer:
+        "You can repay your loan through: 1) Auto-debit from your bank account, 2) UPI payment, 3) Net banking transfer. Go to Account > Repay Loan to make a payment.",
+      category: "Loan",
     },
     {
-      question: 'Why was my transaction declined?',
-      answer: 'Transaction can be declined due to: 1) Insufficient balance, 2) Bank server issues, 3) Security concerns. Please contact your bank or our support team for assistance.',
-      category: 'Transaction'
+      question: "Why was my transaction declined?",
+      answer:
+        "Transaction can be declined due to: 1) Insufficient balance, 2) Bank server issues, 3) Security concerns. Please contact your bank or our support team for assistance.",
+      category: "Transaction",
     },
     {
-      question: 'How do I update my profile information?',
-      answer: 'Go to Profile > Profile Details to update your personal information. Some details like phone number may require OTP verification for security.',
-      category: 'Account'
+      question: "How do I update my profile information?",
+      answer:
+        "Go to Profile > Profile Details to update your personal information. Some details like phone number may require OTP verification for security.",
+      category: "Account",
     },
     {
-      question: 'Is my data secure?',
-      answer: 'Yes, we take data security seriously. All your personal and financial data is encrypted and stored securely. We comply with all relevant data protection regulations.',
-      category: 'Security'
-    }
-  ]
+      question: "Is my data secure?",
+      answer:
+        "Yes, we take data security seriously. All your personal and financial data is encrypted and stored securely. We comply with all relevant data protection regulations.",
+      category: "Security",
+    },
+  ];
 
-  const filteredFaqs = faqs.filter(faq =>
-    faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-  const categories = ['All', 'KYC', 'Loan', 'Transaction', 'Account', 'Security']
+  const categories = [
+    "All",
+    "KYC",
+    "Loan",
+    "Transaction",
+    "Account",
+    "Security",
+  ];
 
   const toggleFaq = (question: string) => {
-    setOpenFaq(openFaq === question ? null : question)
-  }
+    setOpenFaq(openFaq === question ? null : question);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Support & FAQs</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          Support & FAQs
+        </h1>
         <p className="text-gray-500 mt-1">Find answers to common questions</p>
       </div>
 
@@ -148,10 +166,12 @@ export default function SupportPage() {
         {categories.map((category) => (
           <Badge
             key={category}
-            variant={category === 'All' ? 'default' : 'secondary'}
+            variant={category === "All" ? "default" : "secondary"}
             className={cn(
               "cursor-pointer px-4 py-2",
-              category === 'All' ? "bg-[#712CDC] hover:bg-[#5b24b5]" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+              category === "All"
+                ? "bg-[#712CDC] hover:bg-[#5b24b5]"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700",
             )}
           >
             {category}
@@ -170,14 +190,21 @@ export default function SupportPage() {
         <CardContent>
           <div className="space-y-2">
             {filteredFaqs.map((faq, index) => (
-              <div key={index} className="border border-gray-100 rounded-lg overflow-hidden">
+              <div
+                key={index}
+                className="border border-gray-100 rounded-lg overflow-hidden"
+              >
                 <button
                   onClick={() => toggleFaq(faq.question)}
                   className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
                 >
                   <div>
-                    <span className="text-xs text-[#712CDC] font-medium">{faq.category}</span>
-                    <p className="font-medium text-gray-900 mt-1">{faq.question}</p>
+                    <span className="text-xs text-[#712CDC] font-medium">
+                      {faq.category}
+                    </span>
+                    <p className="font-medium text-gray-900 mt-1">
+                      {faq.question}
+                    </p>
                   </div>
                   {openFaq === faq.question ? (
                     <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -187,7 +214,9 @@ export default function SupportPage() {
                 </button>
                 {openFaq === faq.question && (
                   <div className="px-4 pb-4">
-                    <p className="text-sm text-gray-600 leading-relaxed">{faq.answer}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {faq.answer}
+                    </p>
                   </div>
                 )}
               </div>
@@ -198,7 +227,9 @@ export default function SupportPage() {
             <div className="text-center py-8">
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No results found</p>
-              <p className="text-sm text-gray-400 mt-1">Try different keywords or contact support</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Try different keywords or contact support
+              </p>
             </div>
           )}
         </CardContent>
@@ -207,15 +238,17 @@ export default function SupportPage() {
       {/* Quick Links */}
       <Card className="border-gray-100 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg font-semibold text-gray-900">Quick Links</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            Quick Links
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
-              { title: 'How to Apply for Loan', icon: CreditCard },
-              { title: 'KYC Guidelines', icon: User },
-              { title: 'Privacy Policy', icon: Shield },
-              { title: 'Terms & Conditions', icon: FileText },
+              { title: "How to Apply for Loan", icon: CreditCard },
+              { title: "KYC Guidelines", icon: User },
+              { title: "Privacy Policy", icon: Shield },
+              { title: "Terms & Conditions", icon: FileText },
             ].map((link) => (
               <Button
                 key={link.title}
@@ -239,15 +272,18 @@ export default function SupportPage() {
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Average Response Time</h3>
+              <h3 className="font-semibold text-gray-900">
+                Average Response Time
+              </h3>
               <p className="text-sm text-gray-600 mt-1">
-                We typically respond to all queries within 1 hour during business hours (9 AM - 9 PM). 
-                For emails, expect a response within 24 hours.
+                We typically respond to all queries within 1 hour during
+                business hours (9 AM - 9 PM). For emails, expect a response
+                within 24 hours.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,47 +1,55 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
 import {
+  CheckCircle2,
+  ChevronRight,
+  FileText,
+  HelpCircle,
+  Shield,
+  Star,
+  Ticket,
   User,
   Users,
-  Ticket,
-  HelpCircle,
-  FileText,
-  Star,
-  ChevronRight,
-  CheckCircle2,
-  Shield
-} from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
+import { useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 interface MenuItemProps {
-  title: string
-  subtitle: string
-  icon: React.ReactNode
-  href?: string
-  onClick?: () => void
-  badge?: string
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  href?: string;
+  onClick?: () => void;
+  badge?: string;
 }
 
-function MenuItem({ title, subtitle, icon, href, onClick, badge }: MenuItemProps) {
+function MenuItem({
+  title,
+  subtitle,
+  icon,
+  href,
+  onClick,
+  badge,
+}: MenuItemProps) {
   const content = (
     <div
       className={cn(
-        "flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 hover:border-purple-200 hover:shadow-sm transition-all cursor-pointer group"
+        "flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 hover:border-purple-200 hover:shadow-sm transition-all cursor-pointer group",
       )}
       onClick={onClick}
     >
@@ -50,9 +58,14 @@ function MenuItem({ title, subtitle, icon, href, onClick, badge }: MenuItemProps
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="text-base font-medium text-gray-900 truncate">{title}</h3>
+          <h3 className="text-base font-medium text-gray-900 truncate">
+            {title}
+          </h3>
           {badge && (
-            <Badge variant="secondary" className="bg-purple-100 text-[#712CDC] text-xs">
+            <Badge
+              variant="secondary"
+              className="bg-purple-100 text-[#712CDC] text-xs"
+            >
               {badge}
             </Badge>
           )}
@@ -61,77 +74,90 @@ function MenuItem({ title, subtitle, icon, href, onClick, badge }: MenuItemProps
       </div>
       <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#712CDC] transition-colors" />
     </div>
-  )
+  );
 
   if (href) {
-    return <Link href={href}>{content}</Link>
+    return <Link href={href}>{content}</Link>;
   }
 
-  return content
+  return content;
 }
 
 export default function ProfilePage() {
-  const [completionPercentage] = useState(100)
+  const { data: session, isPending } = useSession();
+  const [completionPercentage] = useState(100);
+
+  const user = session?.user;
+  const userName = user?.name || "User";
+  const userPhone = user?.phoneNumber || "";
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   const menuItems = [
     {
-      id: 'profile-details',
-      title: 'Profile details',
-      subtitle: 'Update your info easily.',
+      id: "profile-details",
+      title: "Profile details",
+      subtitle: "Update your info easily.",
       icon: <User className="w-6 h-6" />,
-      href: '/profile/details'
+      href: "/profile/details",
     },
     {
-      id: 'kyc-verification',
-      title: 'KYC Verification',
-      subtitle: 'Complete your KYC for all features.',
+      id: "kyc-verification",
+      title: "KYC Verification",
+      subtitle: "Complete your KYC for all features.",
       icon: <Shield className="w-6 h-6" />,
-      href: '/profile/kyc',
-      badge: 'Required'
+      href: "/profile/kyc",
+      badge: "Required",
     },
     {
-      id: 'invite-friends',
-      title: 'Invite friends',
-      subtitle: 'Share the app, spread the benefits.',
+      id: "invite-friends",
+      title: "Invite friends",
+      subtitle: "Share the app, spread the benefits.",
       icon: <Users className="w-6 h-6" />,
-      href: '/profile/invite',
-      badge: 'Earn ₹500'
+      href: "/profile/invite",
+      badge: "Earn ₹500",
     },
     {
-      id: 'raise-ticket',
-      title: 'Raise a ticket',
-      subtitle: 'We typically response within 1h',
+      id: "raise-ticket",
+      title: "Raise a ticket",
+      subtitle: "We typically response within 1h",
       icon: <Ticket className="w-6 h-6" />,
-      href: '/profile/ticket'
+      href: "/profile/ticket",
     },
     {
-      id: 'support',
-      title: 'Support and FAQs',
-      subtitle: 'Find solutions to your queries',
+      id: "support",
+      title: "Support and FAQs",
+      subtitle: "Find solutions to your queries",
       icon: <HelpCircle className="w-6 h-6" />,
-      href: '/profile/support'
+      href: "/profile/support",
     },
     {
-      id: 'rate-us',
-      title: 'Rate us on Play Store',
-      subtitle: 'Love the app? Leave a review.',
+      id: "rate-us",
+      title: "Rate us on Play Store",
+      subtitle: "Love the app? Leave a review.",
       icon: <Star className="w-6 h-6" />,
-      onClick: () => console.log('Rate us clicked')
+      onClick: () => console.log("Rate us clicked"),
     },
     {
-      id: 'statement',
-      title: 'Statement',
-      subtitle: 'Keep an eye on every transaction',
+      id: "statement",
+      title: "Statement",
+      subtitle: "Keep an eye on every transaction",
       icon: <FileText className="w-6 h-6" />,
-      href: '/profile/statement'
-    }
-  ]
+      href: "/profile/statement",
+    },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Profile</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          Profile
+        </h1>
         <p className="text-gray-500 mt-1">Manage your account settings</p>
       </div>
 
@@ -142,9 +168,9 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative">
               <Avatar className="w-24 h-24 border-4 border-purple-100">
-                <AvatarImage src="" alt="Mehul Sethia" />
+                <AvatarImage src={user?.image || ""} alt={userName} />
                 <AvatarFallback className="bg-purple-100 text-[#712CDC] text-2xl font-semibold">
-                  MS
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
               {completionPercentage === 100 && (
@@ -157,7 +183,9 @@ export default function ProfilePage() {
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h2 className="text-xl font-semibold text-gray-900">Mehul Sethia</h2>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {userName}
+                </h2>
                 {completionPercentage === 100 && (
                   <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                     <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -165,13 +193,21 @@ export default function ProfilePage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-gray-500 mt-1">+91*******839</p>
-              
+              <p className="text-gray-500 mt-1">
+                {userPhone
+                  ? `+91${userPhone.replace(/\d(?=\d{4})/g, "*")}`
+                  : "Phone not set"}
+              </p>
+
               {/* Progress bar */}
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Profile completion</span>
-                  <span className="text-sm font-medium text-[#712CDC]">{completionPercentage}%</span>
+                  <span className="text-sm text-gray-600">
+                    Profile completion
+                  </span>
+                  <span className="text-sm font-medium text-[#712CDC]">
+                    {completionPercentage}%
+                  </span>
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
@@ -183,7 +219,10 @@ export default function ProfilePage() {
             </div>
 
             {/* Edit Button */}
-            <Button variant="outline" className="border-purple-200 text-[#712CDC] hover:bg-purple-50 hover:border-purple-300">
+            <Button
+              variant="outline"
+              className="border-purple-200 text-[#712CDC] hover:bg-purple-50 hover:border-purple-300"
+            >
               <User className="w-4 h-4 mr-2" />
               Edit Profile
             </Button>
@@ -193,7 +232,9 @@ export default function ProfilePage() {
 
       {/* Menu Items */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-gray-900 px-1">Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-gray-900 px-1">
+          Quick Actions
+        </h3>
         <div className="grid gap-3">
           {menuItems.map((item) => (
             <MenuItem
@@ -218,7 +259,7 @@ export default function ProfilePage() {
                 <span className="text-white font-bold">B</span>
               </div>
               <div>
-                <p className="font-medium text-gray-900">Bachat App</p>
+                <p className="font-medium text-gray-900">1Fi App</p>
                 <p className="text-sm text-gray-500">Version 1.0.0</p>
               </div>
             </div>
@@ -229,5 +270,5 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

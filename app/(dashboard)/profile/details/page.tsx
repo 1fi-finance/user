@@ -1,75 +1,111 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
+  AlertCircle,
   Calendar,
-  Edit2,
-  Save,
-  X,
   CheckCircle2,
-  AlertCircle
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+  Edit2,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  User,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 interface FormData {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  dateOfBirth: string
-  address: string
-  city: string
-  state: string
-  pincode: string
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
 }
 
 export default function ProfileDetailsPage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    firstName: 'Mehul',
-    lastName: 'Sethia',
-    email: 'mehul.sethia@example.com',
-    phone: '+91*********39',
-    dateOfBirth: '15/06/1995',
-    address: '123 Main Street, Apartment 4B',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    pincode: '400001'
-  })
+  const { data: session, isPending } = useSession();
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [editedData, setEditedData] = useState<FormData>(formData)
+  const user = session?.user;
+  let userName = user?.name || "";
+
+  // Check if name is a phone number (temporary name from phone signup)
+  const isPhoneAsName = /^\+?\d{10,15}$/.test(userName.replace(/\s/g, ""));
+  if (isPhoneAsName) {
+    userName = "";
+  }
+
+  const nameParts = userName.split(" ").filter(Boolean);
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+  const userInitials = userName
+    ? userName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "U";
+
+  // Handle phone number formatting - remove +91 if already present
+  const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return "";
+    const cleanPhone = phone.replace(/\D/g, "");
+    const phoneWithoutCountry = cleanPhone.startsWith("91")
+      ? cleanPhone.slice(2)
+      : cleanPhone;
+    return phoneWithoutCountry ? `+91${phoneWithoutCountry}` : "";
+  };
+
+  const [formData, setFormData] = useState<FormData>({
+    firstName: firstName,
+    lastName: lastName,
+    email: user?.email || "",
+    phone: formatPhone(user?.phoneNumber),
+    dateOfBirth: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+
+  const [editedData, setEditedData] = useState<FormData>(formData);
 
   const handleSave = () => {
-    setFormData(editedData)
-    setIsEditing(false)
-  }
+    setFormData(editedData);
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    setEditedData(formData)
-    setIsEditing(false)
-  }
+    setEditedData(formData);
+    setIsEditing(false);
+  };
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setEditedData(prev => ({ ...prev, [field]: value }))
-  }
+    setEditedData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Profile Details</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Profile Details
+          </h1>
           <p className="text-gray-500 mt-1">Manage your personal information</p>
         </div>
         {!isEditing ? (
@@ -86,7 +122,10 @@ export default function ProfileDetailsPage() {
               <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-[#712CDC] hover:bg-[#5b24b5]">
+            <Button
+              onClick={handleSave}
+              className="bg-[#712CDC] hover:bg-[#5b24b5]"
+            >
               <Save className="w-4 h-4 mr-2" />
               Save Changes
             </Button>
@@ -101,9 +140,9 @@ export default function ProfileDetailsPage() {
             {/* Avatar */}
             <div className="relative">
               <Avatar className="w-24 h-24 border-4 border-purple-100">
-                <AvatarImage src="" alt="Mehul Sethia" />
+                <AvatarImage src={user?.image || ""} alt={userName} />
                 <AvatarFallback className="bg-purple-100 text-[#712CDC] text-2xl font-semibold">
-                  MS
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
               {isEditing && (
@@ -145,41 +184,51 @@ export default function ProfileDetailsPage() {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-gray-700">First Name</Label>
+              <Label htmlFor="firstName" className="text-gray-700">
+                First Name
+              </Label>
               {isEditing ? (
                 <Input
                   id="firstName"
                   value={editedData.firstName}
-                  onChange={(e) => handleChange('firstName', e.target.value)}
+                  onChange={(e) => handleChange("firstName", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
-                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">{formData.firstName}</div>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                  {formData.firstName}
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-700">Last Name</Label>
+              <Label htmlFor="lastName" className="text-gray-700">
+                Last Name
+              </Label>
               {isEditing ? (
                 <Input
                   id="lastName"
                   value={editedData.lastName}
-                  onChange={(e) => handleChange('lastName', e.target.value)}
+                  onChange={(e) => handleChange("lastName", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
-                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">{formData.lastName}</div>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                  {formData.lastName}
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">Email Address</Label>
+              <Label htmlFor="email" className="text-gray-700">
+                Email Address
+              </Label>
               {isEditing ? (
                 <Input
                   id="email"
                   type="email"
                   value={editedData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
+                  onChange={(e) => handleChange("email", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
@@ -191,13 +240,15 @@ export default function ProfileDetailsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
+              <Label htmlFor="phone" className="text-gray-700">
+                Phone Number
+              </Label>
               {isEditing ? (
                 <Input
                   id="phone"
                   type="tel"
                   value={editedData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e) => handleChange("phone", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
@@ -209,13 +260,15 @@ export default function ProfileDetailsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth" className="text-gray-700">Date of Birth</Label>
+              <Label htmlFor="dateOfBirth" className="text-gray-700">
+                Date of Birth
+              </Label>
               {isEditing ? (
                 <Input
                   id="dateOfBirth"
                   type="date"
                   value={editedData.dateOfBirth}
-                  onChange={(e) => handleChange('dateOfBirth', e.target.value)}
+                  onChange={(e) => handleChange("dateOfBirth", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
@@ -240,12 +293,14 @@ export default function ProfileDetailsPage() {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2 space-y-2">
-              <Label htmlFor="address" className="text-gray-700">Street Address</Label>
+              <Label htmlFor="address" className="text-gray-700">
+                Street Address
+              </Label>
               {isEditing ? (
                 <Input
                   id="address"
                   value={editedData.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  onChange={(e) => handleChange("address", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
@@ -257,44 +312,56 @@ export default function ProfileDetailsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city" className="text-gray-700">City</Label>
+              <Label htmlFor="city" className="text-gray-700">
+                City
+              </Label>
               {isEditing ? (
                 <Input
                   id="city"
                   value={editedData.city}
-                  onChange={(e) => handleChange('city', e.target.value)}
+                  onChange={(e) => handleChange("city", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
-                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">{formData.city}</div>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                  {formData.city}
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="state" className="text-gray-700">State</Label>
+              <Label htmlFor="state" className="text-gray-700">
+                State
+              </Label>
               {isEditing ? (
                 <Input
                   id="state"
                   value={editedData.state}
-                  onChange={(e) => handleChange('state', e.target.value)}
+                  onChange={(e) => handleChange("state", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
-                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">{formData.state}</div>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                  {formData.state}
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="pincode" className="text-gray-700">Pincode</Label>
+              <Label htmlFor="pincode" className="text-gray-700">
+                Pincode
+              </Label>
               {isEditing ? (
                 <Input
                   id="pincode"
                   value={editedData.pincode}
-                  onChange={(e) => handleChange('pincode', e.target.value)}
+                  onChange={(e) => handleChange("pincode", e.target.value)}
                   className="border-gray-200 focus:border-[#712CDC] focus:ring-[#712CDC]"
                 />
               ) : (
-                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">{formData.pincode}</div>
+                <div className="p-3 bg-gray-50 rounded-lg text-gray-900">
+                  {formData.pincode}
+                </div>
               )}
             </div>
           </div>
@@ -311,12 +378,13 @@ export default function ProfileDetailsPage() {
             <div>
               <h3 className="font-semibold text-gray-900">Account Verified</h3>
               <p className="text-sm text-gray-600 mt-1">
-                Your account is fully verified. You have access to all features including withdrawals and credit facilities.
+                Your account is fully verified. You have access to all features
+                including withdrawals and credit facilities.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

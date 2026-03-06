@@ -1,135 +1,144 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
-  const [step, setStep] = useState<'mobile' | 'otp' | 'details'>('mobile')
-  const [mobileNumber, setMobileNumber] = useState('')
-  const [email, setEmail] = useState('')
-  const [pan, setPan] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [dob, setDob] = useState('')
-  const [otp, setOtp] = useState('')
-  const [agreeTerms, setAgreeTerms] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [step, setStep] = useState<"mobile" | "otp" | "details">("mobile");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [pan, setPan] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dob, setDob] = useState("");
+  const [otp, setOtp] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (step === 'otp') {
-      setTimeout(() => inputRefs.current[0]?.focus(), 100)
+    if (step === "otp") {
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
-  }, [step])
+  }, [step]);
 
   const handleMobileSubmit = async () => {
-    if (!agreeTerms || mobileNumber.length !== 10) return
-    
-    setIsLoading(true)
-    setError('')
-    
+    if (!agreeTerms || mobileNumber.length !== 10) return;
+
+    setIsLoading(true);
+    setError("");
+
     try {
-      const response = await fetch('/api/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: mobileNumber })
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setStep('otp')
+      const formattedPhone = `91${mobileNumber}`;
+
+      const { error } = await authClient.phoneNumber.sendOtp({
+        phoneNumber: `+${formattedPhone}`,
+      });
+
+      if (!error) {
+        setStep("otp");
       } else {
-        setError(data.message || 'Failed to send OTP')
+        setError(error.message || "Failed to send OTP");
       }
     } catch (err) {
-      setError('Failed to send OTP. Please try again.')
-      console.error(err)
+      setError("Failed to send OTP. Please try again.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleOtpSubmit = async () => {
-    if (otp.length !== 6) return
-    
-    setIsLoading(true)
-    setError('')
-    
+    if (otp.length !== 6) return;
+
+    setIsLoading(true);
+    setError("");
+
     try {
-      const response = await fetch('/api/otp/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: mobileNumber, code: otp })
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        // OTP verified successfully - proceed to details or redirect
-        setStep('details')
+      const formattedPhone = `91${mobileNumber}`;
+
+      const { data, error } = await authClient.phoneNumber.verify({
+        phoneNumber: `+${formattedPhone}`,
+        code: otp,
+      });
+
+      if (!error && data) {
+        window.location.href = "/dashboard";
+      } else if (error?.message?.includes("not found")) {
+        setStep("details");
       } else {
-        setError(data.message || 'Invalid OTP')
+        setError(error?.message || "Invalid OTP");
       }
     } catch (err) {
-      setError('Failed to verify OTP. Please try again.')
-      console.error(err)
+      setError("Failed to verify OTP. Please try again.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleResendOTP = async () => {
-    setIsLoading(true)
-    setError('')
-    
+    setIsLoading(true);
+    setError("");
+
     try {
-      const response = await fetch('/api/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: mobileNumber })
-      })
-      
-      const data = await response.json()
-      
-      if (!data.success) {
-        setError(data.message || 'Failed to resend OTP')
+      const formattedPhone = `91${mobileNumber}`;
+
+      const { error } = await authClient.phoneNumber.sendOtp({
+        phoneNumber: `+${formattedPhone}`,
+      });
+
+      if (error) {
+        setError(error.message || "Failed to resend OTP");
       }
     } catch (err) {
-      setError('Failed to resend OTP. Please try again.')
-      console.error(err)
+      setError("Failed to resend OTP. Please try again.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDetailsSubmit = async () => {
-    if (!email || !pan || !fullName || !dob) return
-    
-    setIsLoading(true)
-    setError('')
-    
+    if (!email || !pan || !fullName || !dob) return;
+
+    setIsLoading(true);
+    setError("");
+
     try {
-      // Save user details - this would be your API call
-      console.log({ email, pan, fullName, dob, phone: mobileNumber })
-      // Handle successful registration
+      const formattedPhone = `91${mobileNumber}`;
+
+      const { data, error } = await authClient.phoneNumber.verify({
+        phoneNumber: `+${formattedPhone}`,
+        code: otp,
+        fullName,
+        email,
+        pan,
+      });
+
+      if (!error && data) {
+        window.location.href = "/dashboard";
+      } else {
+        setError(error?.message || "Failed to complete registration");
+      }
     } catch (err) {
-      setError('Failed to complete registration.')
-      console.error(err)
+      setError("Failed to complete registration.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleBack = () => {
-    if (step === 'details') {
-      setStep('otp')
-      setOtp('')
-    } else if (step === 'otp') {
-      setStep('mobile')
-      setOtp('')
+    if (step === "details") {
+      setStep("otp");
+      setOtp("");
+    } else if (step === "otp") {
+      setStep("mobile");
+      setOtp("");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex font-sans">
@@ -137,51 +146,88 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#712CDC] via-[#8c27fc] to-[#5c22a5] relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             <defs>
-              <pattern id="grid-login" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+              <pattern
+                id="grid-login"
+                width="10"
+                height="10"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 10 0 L 0 0 0 10"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="0.5"
+                />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#grid-login)" />
           </svg>
         </div>
-        
+
         {/* Floating Elements */}
         <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-float" />
         <div className="absolute bottom-32 right-24 w-48 h-48 bg-white/10 rounded-full blur-3xl animate-float animate-delay-200" />
         <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-white/10 rounded-full blur-xl animate-float animate-delay-400" />
-        
+
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-8 xl:px-16 py-12 text-white">
           {/* Logo */}
           <div className="mb-12">
-            <Link href="/get-started" className="inline-flex items-center gap-2 text-white hover:text-white/80 transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <Link
+              href="/get-started"
+              className="inline-flex items-center gap-2 text-white hover:text-white/80 transition-colors"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
               <span className="text-sm">Back</span>
             </Link>
           </div>
-          
+
           {/* Heading */}
           <h1 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-            Welcome<br/>Back
+            Welcome
+            <br />
+            Back
           </h1>
-          
+
           {/* Subtext */}
           <p className="text-lg xl:text-xl text-white/80 mb-12 max-w-md leading-relaxed">
             Sign in to access your account and continue your investment journey.
           </p>
-          
+
           {/* Trust Indicators */}
           <div className="flex items-center gap-6 xl:gap-8">
             <div className="flex -space-x-3">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="w-10 h-10 rounded-full border-2 border-[#712CDC] bg-white flex items-center justify-center text-xs font-medium"
-                  style={{ backgroundColor: ['#fef3c7', '#dbeafe', '#dcfce7', '#fce7f3', '#e0e7ff'][i-1] }}
+                  style={{
+                    backgroundColor: [
+                      "#fef3c7",
+                      "#dbeafe",
+                      "#dcfce7",
+                      "#fce7f3",
+                      "#e0e7ff",
+                    ][i - 1],
+                  }}
                 >
                   {String.fromCharCode(64 + i)}
                 </div>
@@ -202,23 +248,50 @@ export default function LoginPage() {
           <div className="lg:hidden flex flex-col items-center mb-6 sm:mb-8">
             <Link href="/get-started" className="self-start mb-4">
               <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
                 </svg>
               </div>
             </Link>
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#712CDC] flex items-center justify-center">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              <svg
+                className="w-6 h-6 sm:w-7 sm:h-7 text-white"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>
           </div>
 
           {/* Desktop Logo & Back */}
           <div className="hidden lg:flex items-center gap-4 mb-8">
-            <Link href="/get-started" className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <Link
+              href="/get-started"
+              className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
+            >
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
             </Link>
           </div>
@@ -231,7 +304,7 @@ export default function LoginPage() {
           )}
 
           {/* Mobile Number Step */}
-          {step === 'mobile' && (
+          {step === "mobile" && (
             <div className="flex flex-col gap-6 sm:gap-8">
               {/* Header */}
               <div className="flex flex-col gap-2">
@@ -270,7 +343,10 @@ export default function LoginPage() {
                   className="mt-1 w-5 h-5 rounded border-2 border-gray-300 text-[#712CDC] focus:ring-[#712CDC]"
                   disabled={isLoading}
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                <label
+                  htmlFor="terms"
+                  className="text-sm text-gray-600 leading-relaxed"
+                >
                   I agree with 1Fi's T&C and Privacy Policy
                 </label>
               </div>
@@ -278,24 +354,46 @@ export default function LoginPage() {
               {/* Button */}
               <button
                 onClick={handleMobileSubmit}
-                disabled={!agreeTerms || mobileNumber.length !== 10 || isLoading}
+                disabled={
+                  !agreeTerms || mobileNumber.length !== 10 || isLoading
+                }
                 className="w-full h-12 sm:h-14 rounded-full text-white font-medium tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                style={{ backgroundColor: (agreeTerms && mobileNumber.length === 10 && !isLoading) ? '#712CDC' : '#9CA3AF' }}
+                style={{
+                  backgroundColor:
+                    agreeTerms && mobileNumber.length === 10 && !isLoading
+                      ? "#712CDC"
+                      : "#9CA3AF",
+                }}
               >
                 {isLoading ? (
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 ) : (
-                  'Proceed'
+                  "Proceed"
                 )}
               </button>
             </div>
           )}
 
           {/* OTP Step */}
-          {step === 'otp' && (
+          {step === "otp" && (
             <div className="flex flex-col gap-6 sm:gap-8">
               {/* Back Button */}
               <button
@@ -303,8 +401,18 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-gray-600 w-fit"
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
                 <span className="text-sm">Back</span>
               </button>
@@ -326,34 +434,36 @@ export default function LoginPage() {
                     <input
                       key={index}
                       ref={(el) => {
-                        inputRefs.current[index] = el
+                        inputRefs.current[index] = el;
                       }}
                       type="text"
                       inputMode="numeric"
                       maxLength={1}
-                      value={otp[index] || ''}
+                      value={otp[index] || ""}
                       onChange={(e) => {
-                        const value = e.target.value
-                        if (!/^\d*$/.test(value)) return
-                        const newOtp = otp.split('')
-                        newOtp[index] = value
-                        setOtp(newOtp.join(''))
+                        const value = e.target.value;
+                        if (!/^\d*$/.test(value)) return;
+                        const newOtp = otp.split("");
+                        newOtp[index] = value;
+                        setOtp(newOtp.join(""));
                         if (value && index < 5) {
-                          inputRefs.current[index + 1]?.focus()
+                          inputRefs.current[index + 1]?.focus();
                         }
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === 'Backspace' && !otp[index] && index > 0) {
-                          inputRefs.current[index - 1]?.focus()
+                        if (e.key === "Backspace" && !otp[index] && index > 0) {
+                          inputRefs.current[index - 1]?.focus();
                         }
                       }}
                       onPaste={(e) => {
-                        e.preventDefault()
-                        const pastedData = e.clipboardData.getData('text/plain').slice(0, 6)
+                        e.preventDefault();
+                        const pastedData = e.clipboardData
+                          .getData("text/plain")
+                          .slice(0, 6);
                         if (/^\d+$/.test(pastedData)) {
-                          setOtp(pastedData)
-                          const nextIndex = Math.min(pastedData.length, 5)
-                          inputRefs.current[nextIndex]?.focus()
+                          setOtp(pastedData);
+                          const nextIndex = Math.min(pastedData.length, 5);
+                          inputRefs.current[nextIndex]?.focus();
                         }
                       }}
                       className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-semibold border-2 border-gray-200 rounded-xl outline-none focus:border-[#712CDC] transition-colors"
@@ -364,7 +474,7 @@ export default function LoginPage() {
 
                 {/* Resend Link */}
                 <div className="text-center">
-                  <button 
+                  <button
                     onClick={handleResendOTP}
                     className="text-sm text-[#712CDC] font-medium"
                     disabled={isLoading}
@@ -388,15 +498,33 @@ export default function LoginPage() {
                   onClick={handleOtpSubmit}
                   disabled={otp.length !== 6 || isLoading}
                   className="w-full h-12 sm:h-14 rounded-full text-white font-medium tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  style={{ backgroundColor: (otp.length === 6 && !isLoading) ? '#712CDC' : '#9CA3AF' }}
+                  style={{
+                    backgroundColor:
+                      otp.length === 6 && !isLoading ? "#712CDC" : "#9CA3AF",
+                  }}
                 >
                   {isLoading ? (
-                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                   ) : (
-                    'Continue'
+                    "Continue"
                   )}
                 </button>
               </div>
@@ -404,7 +532,7 @@ export default function LoginPage() {
           )}
 
           {/* Details Step */}
-          {step === 'details' && (
+          {step === "details" && (
             <div className="flex flex-col gap-5">
               {/* Back Button */}
               <button
@@ -412,8 +540,18 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-gray-600 w-fit"
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
                 <span className="text-sm">Back</span>
               </button>
@@ -491,15 +629,35 @@ export default function LoginPage() {
                 onClick={handleDetailsSubmit}
                 disabled={!email || !pan || !fullName || !dob || isLoading}
                 className="w-full h-12 sm:h-14 rounded-full text-white font-medium tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                style={{ backgroundColor: ((email && pan && fullName && dob) && !isLoading) ? '#712CDC' : '#9CA3AF' }}
+                style={{
+                  backgroundColor:
+                    email && pan && fullName && dob && !isLoading
+                      ? "#712CDC"
+                      : "#9CA3AF",
+                }}
               >
                 {isLoading ? (
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 ) : (
-                  'Continue'
+                  "Continue"
                 )}
               </button>
             </div>
@@ -507,5 +665,5 @@ export default function LoginPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

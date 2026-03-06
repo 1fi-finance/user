@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
+import { ReactNode } from "react";
 
 interface MerchantCardProps {
-  name: string
-  address: string
-  category: string
-  rating: number
-  icon?: ReactNode
-  onDirectionsClick?: () => void
-  className?: string
+  name: string;
+  address: string;
+  category: string;
+  rating: number;
+  icon?: ReactNode;
+  onDirectionsClick?: () => void;
+  className?: string;
 }
 
 export default function MerchantCard({
@@ -19,13 +19,13 @@ export default function MerchantCard({
   rating,
   icon,
   onDirectionsClick,
-  className = '',
+  className = "",
 }: MerchantCardProps) {
   // Generate star rating display
   const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
       <div className="flex items-center gap-0.5">
@@ -71,8 +71,8 @@ export default function MerchantCard({
           </svg>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div
@@ -82,8 +82,8 @@ export default function MerchantCard({
         ${className}
       `}
       style={{
-        width: '240px',
-        borderRadius: 'var(--radius-md)',
+        width: "240px",
+        borderRadius: "var(--radius-md)",
       }}
     >
       {/* Main content */}
@@ -91,30 +91,34 @@ export default function MerchantCard({
         {/* Icon/Emoji */}
         <div
           className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-bg-hover)' }}
+          style={{ backgroundColor: "var(--color-bg-hover)" }}
         >
-          {icon || <span className="text-2xl" role="img" aria-label="Merchant icon">🏪</span>}
+          {icon || (
+            <span className="text-2xl" role="img" aria-label="Merchant icon">
+              🏪
+            </span>
+          )}
         </div>
 
         {/* Merchant info */}
         <div className="flex-1 min-w-0">
           <p
             className="text-sm font-medium truncate"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: "var(--color-text-primary)" }}
             title={name}
           >
             {name}
           </p>
           <p
             className="text-xs truncate mt-0.5"
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: "var(--color-text-muted)" }}
             title={address}
           >
             {address}
           </p>
           <p
             className="text-xs mt-0.5"
-            style={{ color: 'var(--color-text-secondary)' }}
+            style={{ color: "var(--color-text-secondary)" }}
           >
             {category}
           </p>
@@ -124,14 +128,18 @@ export default function MerchantCard({
       {/* Footer with rating and directions */}
       <div
         className="flex items-center justify-between mt-3 pt-3 border-t"
-        style={{ borderColor: 'var(--color-divider)' }}
+        style={{ borderColor: "var(--color-divider)" }}
       >
         {/* Rating */}
-        <div className="flex items-center gap-1.5" role="img" aria-label={`Rating: ${rating} out of 5 stars`}>
+        <div
+          className="flex items-center gap-1.5"
+          role="img"
+          aria-label={`Rating: ${rating} out of 5 stars`}
+        >
           {renderStars(rating)}
           <span
             className="text-xs font-medium ml-0.5"
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             {rating.toFixed(1)}
           </span>
@@ -142,7 +150,7 @@ export default function MerchantCard({
           <button
             onClick={onDirectionsClick}
             className="flex items-center gap-1.5 text-xs font-medium focus-ring rounded-md px-2 py-1 -my-1 touch-feedback"
-            style={{ color: 'var(--color-primary)' }}
+            style={{ color: "var(--color-primary)" }}
             aria-label={`Get directions to ${name}`}
           >
             <span>Get Directions</span>
@@ -164,5 +172,5 @@ export default function MerchantCard({
         )}
       </div>
     </div>
-  )
+  );
 }
